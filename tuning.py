@@ -6,10 +6,10 @@ from xgboost import XGBClassifier
 import optuna
 optuna.logging.set_verbosity(optuna.logging.WARNING)
 
-# 读入数据
+# Read data
 df = pd.read_excel('Putnam PHD.xlsx')
 
-# 特征工程
+# Feature engineering
 college_phd_rate = df.groupby('College')['PHD'].mean()
 high_phd_schools = college_phd_rate[college_phd_rate >= 0.60].index.tolist()
 df['top_phd_school'] = df['College'].isin(high_phd_schools).astype(int)
@@ -33,7 +33,7 @@ xgb_base.fit(X_train, y_train)
 base_auc = roc_auc_score(y_test, xgb_base.predict_proba(X_test)[:,1])
 print(f"Baseline Test AUC: {base_auc:.4f}")
 
-# Optuna调参
+# Optuna tuning
 def objective(trial):
     params = {
         'n_estimators': trial.suggest_int('n_estimators', 100, 500),
@@ -50,8 +50,8 @@ def objective(trial):
 study = optuna.create_study(direction='maximize')
 study.optimize(objective, n_trials=50)
 
-print(f"\n最优CV AUC: {study.best_value:.4f}")
-print(f"最优参数: {study.best_params}")
+print(f"\nOptimalCV AUC: {study.best_value:.4f}")
+print(f"Optimal parameters: {study.best_params}")
 
 best_model = XGBClassifier(**study.best_params, random_state=42)
 best_model.fit(X_train, y_train)
@@ -59,4 +59,4 @@ best_auc = roc_auc_score(y_test, best_model.predict_proba(X_test)[:,1])
 
 print(f"\nBaseline Test AUC: {base_auc:.4f}")
 print(f"Tuned Test AUC:    {best_auc:.4f}")
-print(f"提升:              {best_auc - base_auc:+.4f}")
+print(f"Improve:              {best_auc - base_auc:+.4f}")
