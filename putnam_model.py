@@ -178,7 +178,6 @@ summary.to_csv('model_summary.csv', index=False)
 
 print("Results saved")
 
-# 上传到S3
 subprocess.run(['aws', 's3', 'cp', 'shap_importance.csv', 's3://putnam-ml-siyuan-2026/'])
 subprocess.run(['aws', 's3', 'cp', 'model_predictions.csv', 's3://putnam-ml-siyuan-2026/'])
 subprocess.run(['aws', 's3', 'cp', 'model_summary.csv', 's3://putnam-ml-siyuan-2026/'])
